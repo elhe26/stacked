@@ -1,3 +1,98 @@
+## 2.1.1
+
+- Exports Transition builders
+
+## 2.1.0
+
+- Adds annotations to allow the user to generate a logger for their app
+
+## 2.0.4
+
+- Updates the extended router functionality to use non null routes
+
+## 2.0.3+1
+
+- Exposed `buildAdaptivePageRoute`, `misTypedArgsRoute` and `defaultUnknownRoutePage` functions to outer world
+- Changed `OutlineButton` to `OutlinedButton` (removed deprecated code)
+
+## 2.0.3
+
+- Fixed where anyObjectsBusy was always true in MultipleFutureViewModel.
+
+## 2.0.2
+
+- Made ViewModel variable naming scheme consistent. `ViewModel viewModel` is now preferred.
+
+## 2.0.1
+
+- Adds ReactiveValue and ReactiveList for reactive functionality
+
+## 2.0.0
+
+- Null safety migration complete and ready to be used!
+
+## 2.0.0-nullsafety.3
+
+- Fixes annotation to allow for date selection
+
+## 2.0.0-nullsafety.2
+
+- Adds back `resolveUsing` function to the annotations
+
+## 2.0.0-nullsafety.1
+
+- Migrate to null-safety. We will remove null safety when we iron out all the issues
+
+## 1.9.8
+
+- Exposes `RouteGuard` through stacked as well
+
+## 1.9.7
+
+- Adds `resolveUsing` function that can be used for singleton type dependency registrations.
+
+## 1.9.6
+
+- Exports the `ExtendedNavigator` for nested navigation
+- Update provider in stacked to 5.0.0
+- Revert nonReactive update update for stacked
+- Update get_it to 6.0.0
+- Will revert fix for issue that came with disposing a nonReactive Viewmodel.
+
+## 1.9.5
+
+- Adds the asType property into the locator types
+
+## 1.9.4
+
+- Adds fix for [issue #171](https://github.com/FilledStacks/stacked/issues/171)
+
+## 1.9.3
+
+- Adds onDispose functionality
+
+## 1.9.2
+
+### MAJOR UPDATE: FORMS!!!
+
+- Adds brand new form first party support and form generation functionality
+
+## 1.9.1+2
+
+- Fix null error from locator
+
+## 1.9.1+1
+
+- Adds export for `StackedLocator`
+
+## 1.9.1
+
+- Adds `StackedLocator` to remove the apps dependency from GetIt. It's a thin wrapper around the `GetIt` object implementation
+
+## 1.9.0
+
+Big Update! This version of stacked aims to reduce the boiler plate required to setup a stacked application. We introduce the annotation that are used by the stacked_generator to generate the router and locator setup functionality.
+
 ## 1.7.7
 
 - Fixes [Multiple Streams ViewModel causing memory overflow](https://github.com/FilledStacks/stacked/issues/190) bug

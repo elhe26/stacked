@@ -7,6 +7,9 @@ import 'package:stacked_services/src/dialog/platform_dialog.dart';
 import 'package:stacked_services/src/models/overlay_request.dart';
 import 'package:stacked_services/src/models/overlay_response.dart';
 
+typedef DialogBuilder = Widget Function(
+    BuildContext, DialogRequest, void Function(DialogResponse));
+
 enum DialogPlatform {
   Cupertino,
   Material,
@@ -15,26 +18,14 @@ enum DialogPlatform {
 
 /// A DialogService that uses the Get package to show dialogs from the business logic
 class DialogService {
-  Map<
-          dynamic,
-          Widget Function(
-              BuildContext, DialogRequest, Function(DialogResponse))>
-      _dialogBuilders;
+  Map<dynamic, DialogBuilder>? _dialogBuilders;
 
-  void registerCustomDialogBuilders(
-      Map<
-              dynamic,
-              Widget Function(
-                  BuildContext, DialogRequest, Function(DialogResponse))>
-          builders) {
+  void registerCustomDialogBuilders(Map<dynamic, DialogBuilder> builders) {
     _dialogBuilders = builders;
   }
 
-  Map<
-      dynamic,
-      Widget Function(BuildContext, DialogRequest,
-          Function(DialogResponse))> _customDialogBuilders = Map<dynamic,
-      Widget Function(BuildContext, DialogRequest, Function(DialogResponse))>();
+  Map<dynamic, DialogBuilder> _customDialogBuilders =
+      Map<dynamic, DialogBuilder>();
 
   @Deprecated(
       'Prefer to use the StackedServices.navigatorKey instead of using this key. This will be removed in the next major version update for stacked.')
@@ -53,30 +44,33 @@ class DialogService {
     'Prefer to use the registerCustomDialogBuilders() method. This method will be removed on the next major release. 0.7.0',
   )
   void registerCustomDialogBuilder({
-    @required dynamic variant,
-    @required
-        Widget Function(BuildContext, DialogRequest, Function(DialogResponse))
-            builder,
+    required dynamic variant,
+    required Widget Function(
+            BuildContext, DialogRequest, Function(DialogResponse))
+        builder,
   }) {
     _customDialogBuilders[variant] = builder;
   }
 
+  /// Check if dialog is open
+  bool? get isDialogOpen => Get.isDialogOpen;
+
   /// Shows a dialog to the user
   ///
   /// It will show a platform specific dialog by default. This can be changed by setting [dialogPlatform]
-  Future<DialogResponse> showDialog({
-    String title,
-    String description,
-    String cancelTitle,
-    Color cancelTitleColor,
+  Future<DialogResponse?> showDialog({
+    String? title,
+    String? description,
+    String? cancelTitle,
+    Color? cancelTitleColor,
     String buttonTitle = 'Ok',
-    Color buttonTitleColor,
+    Color? buttonTitleColor,
     bool barrierDismissible = false,
 
     /// Indicates which [DialogPlatform] to show.
     ///
     /// When not set a Platform specific dialog will be shown
-    DialogPlatform dialogPlatform,
+    DialogPlatform? dialogPlatform,
   }) {
     if (dialogPlatform != null) {
       return _showDialog(
@@ -104,27 +98,30 @@ class DialogService {
     }
   }
 
-  Future<DialogResponse> _showDialog({
-    String title,
-    String description,
-    String cancelTitle,
-    Color cancelTitleColor,
-    String buttonTitle,
-    Color buttonTitleColor,
-    DialogPlatform dialogPlatform,
+  Future<DialogResponse?> _showDialog({
+    String? title,
+    String? description,
+    String? cancelTitle,
+    Color? cancelTitleColor,
+    String? buttonTitle,
+    Color? buttonTitleColor,
+    DialogPlatform dialogPlatform = DialogPlatform.Material,
     bool barrierDismissible = false,
   }) {
     var isConfirmationDialog = cancelTitle != null;
     return Get.dialog<DialogResponse>(
       PlatformDialog(
+        key: Key('dialog_view'),
         dialogPlatform: dialogPlatform,
         title: title,
         content: description,
         actions: <Widget>[
           if (isConfirmationDialog)
             PlatformButton(
+              key: Key('dialog_touchable_cancel'),
+              textChildKey: Key('dialog_text_cancelButtonText'),
               dialogPlatform: dialogPlatform,
-              text: cancelTitle,
+              text: cancelTitle!,
               cancelBtnColor: cancelTitleColor,
               isCancelButton: true,
               onPressed: () {
@@ -136,8 +133,10 @@ class DialogService {
               },
             ),
           PlatformButton(
+            key: Key('dialog_touchable_confirm'),
+            textChildKey: Key('dialog_text_confirmButtonText'),
             dialogPlatform: dialogPlatform,
-            text: buttonTitle,
+            text: buttonTitle!,
             confirmationBtnColor: buttonTitleColor,
             onPressed: () {
               completeDialog(
@@ -154,27 +153,30 @@ class DialogService {
   }
 
   // Creates a popup with the given widget, a scale animation, and faded background.
-  Future<DialogResponse> showCustomDialog({
+  Future<DialogResponse?> showCustomDialog({
     dynamic variant,
-    String title,
-    String description,
+    String? title,
+    String? description,
     bool hasImage = false,
-    String imageUrl,
+    String? imageUrl,
     bool showIconInMainButton = false,
-    String mainButtonTitle,
+    String? mainButtonTitle,
     bool showIconInSecondaryButton = false,
-    String secondaryButtonTitle,
+    String? secondaryButtonTitle,
     bool showIconInAdditionalButton = false,
-    String additionalButtonTitle,
+    String? additionalButtonTitle,
     bool takesInput = false,
     Color barrierColor = Colors.black54,
     bool barrierDismissible = false,
     String barrierLabel = '',
     dynamic customData,
   }) {
-    // TODO: Remove the _customDialogUIBuilders in the next major release 0.7.0
-    final customDialogUI =
-        _dialogBuilders[variant] ?? _customDialogBuilders[variant];
+    assert(
+      _dialogBuilders != null,
+      'You have to call registerCustomDialogBuilder to use this function. Look at the custom dialog UI section in the stacked_services readme.',
+    );
+
+    final customDialogUI = _dialogBuilders![variant];
 
     assert(
       customDialogUI != null,
@@ -188,8 +190,9 @@ class DialogService {
       barrierLabel: barrierLabel,
       useRootNavigator: true,
       pageBuilder: (BuildContext buildContext, _, __) => SafeArea(
+        key: Key('dialog_view'),
         child: Builder(
-          builder: (BuildContext context) => customDialogUI(
+          builder: (BuildContext context) => customDialogUI!(
             context,
             DialogRequest(
               title: title,
@@ -224,9 +227,9 @@ class DialogService {
   }
 
   /// Shows a confirmation dialog with title and description
-  Future<DialogResponse> showConfirmationDialog({
-    String title,
-    String description,
+  Future<DialogResponse?> showConfirmationDialog({
+    String? title,
+    String? description,
     String cancelTitle = 'Cancel',
     String confirmationTitle = 'Ok',
     bool barrierDismissible = false,
@@ -234,7 +237,7 @@ class DialogService {
     /// Indicates which [DialogPlatform] to show.
     ///
     /// When not set a Platform specific dialog will be shown
-    DialogPlatform dialogPlatform,
+    DialogPlatform? dialogPlatform,
   }) =>
       showDialog(
         title: title,

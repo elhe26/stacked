@@ -1,3 +1,26 @@
+## 0.3.2
+
+- Makes `ThemeService.getInstance` non-nullable since we'll always construct a theme service in there if null
+
+## 0.3.1
+
+- Adds a `selectedThemeIndex` property to ThemeManager for getting currently enabled theme.
+
+## 0.3.0
+
+- Updates the package to null-safety
+
+## 0.2.4
+
+- provider: ^4.3.3 -> ^5.0.0
+- rxdart: ^0.25.0 -> ^0.26.0
+- shared_preferences: ^0.5.12+4 -> ^2.0.4
+- get_it: ^5.0.6 -> ^6.0.0
+
+## 0.2.3
+
+- Use get_it newInstance to avoid clashing with the app
+
 ## 0.2.2+2
 
 - Updates packages to the latest
